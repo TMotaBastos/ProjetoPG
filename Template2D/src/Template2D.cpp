@@ -38,8 +38,103 @@ Quadrado quad;
 //std::vector<Ponto> ponto;
 Ponto ponto[2];
 int qtdPontos;
-GLfloat window_width = 350.0;
-GLfloat window_height = 350.0;
+GLfloat window_width = /*350.0*/600.0;
+GLfloat window_height = /*350.0*/600.0;
+
+GLuint loadTexture(const char* imagepath) {
+	unsigned char header[54];
+	unsigned int dataPos;
+	unsigned int width, height;
+	unsigned int imageSize;
+	unsigned char* data;
+
+	FILE* file = fopen(imagepath, "rb");
+	if (!file) {
+		printf("Nao existe essa imagem!\n");
+		return 0;
+	}
+	if (fread(header, 1, 54, file) != 54) {
+		printf("Nao eh uma imagem valida!\n");
+		return 0;
+	}
+	if (header[0] != 'B' || header[1] != 'M') {
+		printf("Nao eh uma imagem valida!\n");
+		return 0;
+	}
+	dataPos = *(int*)&(header[0x0A]);
+	imageSize = *(int*)&(header[0x22]);
+	width = *(int*)&(header[0x12]);
+	height = *(int*)&(header[0x16]);
+
+	if (imageSize == 0) imageSize = width * height * 3;
+	if (dataPos == 0) dataPos = 54;
+
+	data = new unsigned char[imageSize];
+	fread(data, 1, imageSize, file);
+	fclose(file);
+
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	return textureID;
+}
+
+GLuint loadTexture2(const char * filename)
+{
+
+	GLuint texture;
+
+	int width, height;
+
+	unsigned char * data;
+
+	FILE * file;
+
+	file = fopen(filename, "rb");
+
+	if (file == NULL) return 0;
+	width = 1024;
+	height = 512;
+	data = (unsigned char *)malloc(width * height * 3);
+	//int size = fseek(file,);
+	fread(data, width * height * 3, 1, file);
+	fclose(file);
+
+	for (int i = 0; i < width * height; ++i)
+	{
+		int index = i * 3;
+		unsigned char B, R;
+		B = data[index];
+		R = data[index + 2];
+
+		data[index] = R;
+		data[index + 2] = B;
+
+	}
+
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+	free(data);
+
+	return texture;
+}
+
 void myinit() {
 	srand(time(NULL));
 	//qtdQuadrados = 0;	
@@ -73,16 +168,43 @@ void mydisplay() {
 	// glEnd();	
 	//}	
 	//colocando na tela o quadrado	
-	glColor3f(quad.r, quad.g, quad.b);
+	//glColor3f(quad.r, quad.g, quad.b);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	//colocando a textura
+	GLuint texture = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb.bmp");
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	/*glVertex2f(quad.x, quad.y);
 	glVertex2f(quad.x + quad.lado, quad.y);
 	glVertex2f(quad.x + quad.lado, quad.y - quad.lado);
 	glVertex2f(quad.x, quad.y - quad.lado);*/
+	/*
+	//bottom left
+	glTexCoord2f(0, 1);
 	glVertex2f(quad.x, quad.y);
+	//bottom right
+	glTexCoord2f(1, 1);
 	glVertex2f(quad.x + quad.lado, quad.y);
+	//top right
+	glTexCoord2f(1, 0);
 	glVertex2f(quad.x + quad.lado, quad.y + quad.lado);
+	//top left
+	glTexCoord2f(0, 0);
 	glVertex2f(quad.x, quad.y + quad.lado);
+	*/
+	//top left
+	glTexCoord2f(0, 1);
+	glVertex2f(quad.x, quad.y + quad.lado);
+	//bottom left
+	glTexCoord2f(0, 0);
+	glVertex2f(quad.x, quad.y);
+	//bottom right
+	glTexCoord2f(1, 0);
+	glVertex2f(quad.x + quad.lado, quad.y);
+	//top right
+	glTexCoord2f(1, 1);
+	glVertex2f(quad.x + quad.lado, quad.y + quad.lado);
 	glEnd();
 	//outro teste	
 	glBegin(GL_LINE_STRIP);
