@@ -29,6 +29,7 @@ http://www.opengl.org/sdk/docs/man/
 */
 
 #include "Template2D.h"
+#define ESPACO 10
 
 //int qtdQuadrados;
 int estado;
@@ -38,6 +39,11 @@ Quadrado quad;
 //std::vector<Ponto> ponto;
 Ponto ponto[2];
 int qtdPontos;
+int cont;
+GLfloat movimentoX;
+GLfloat movimentoY;
+bool emMovimento;
+int qtdPassos;
 GLfloat window_width = /*350.0*/600.0;
 GLfloat window_height = /*350.0*/600.0;
 
@@ -138,6 +144,11 @@ GLuint loadTexture2(const char * filename)
 void myinit() {
 	srand(time(NULL));
 	//qtdQuadrados = 0;	
+	cont = 0;
+	movimentoX = 0.0;
+	movimentoY = 0.0;
+	emMovimento = false;
+	qtdPassos = 0;
 	qtdPontos = 0;
 	quad = Quadrado(/*(((GLfloat)(rand()%50))/100.0)+0.1*/(GLfloat)0.5, /*0*/-0.25, /*0*/-0.25,
 		((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0);
@@ -171,8 +182,12 @@ void mydisplay() {
 	//glColor3f(quad.r, quad.g, quad.b);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	//colocando a textura
-	GLuint texture = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb.bmp");
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint texture1 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb.bmp");
+	GLuint texture2 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb2.bmp");
+	GLuint texture3 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb3.bmp");
+	if(cont < 10) glBindTexture(GL_TEXTURE_2D, texture1);
+	else if(cont >= 10 && cont < 20) glBindTexture(GL_TEXTURE_2D, texture2);
+	else if(cont >= 20 && cont < 30) glBindTexture(GL_TEXTURE_2D, texture3);
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	/*glVertex2f(quad.x, quad.y);
@@ -255,8 +270,11 @@ void handleMouse(int btn, int state, int x, int y) {
 			break;
 			}
 			}*/
-			quad.x = mouse_x;
-			quad.y = mouse_y;
+			emMovimento = true;
+			movimentoX = ((mouse_x - quad.x)+0.0) / ESPACO;
+			movimentoY = ((mouse_y - quad.y)+0.0) / ESPACO;
+			//quad.x = mouse_x;
+			//quad.y = mouse_y;
 			estado = MODIFIED;
 		}
 	}
@@ -296,6 +314,18 @@ void hadleSpecialKeyboard(int key, int x, int y) {
 }
 
 void loop(int id) {
+	if (emMovimento) {
+		qtdPassos++;
+		quad.x += movimentoX;
+		quad.y += movimentoY;
+		estado = MODIFIED;
+		if (qtdPassos == ESPACO) {
+			qtdPassos = 0;
+			movimentoX = 0.0;
+			movimentoY = 0.0;
+			emMovimento = false;
+		}
+	}
 	if (estado == MODIFIED) {
 		mydisplay();
 		estado = IDLE;
@@ -303,6 +333,8 @@ void loop(int id) {
 	else if (estado != IDLE) {
 		mydisplay();
 	}
+	cont = (cont + 1) % 30;
+	if (cont == 10 || cont == 20 || cont == 0) mydisplay();//estado = MODIFIED;
 	glutTimerFunc(1000 / FPS, loop, id);
 }
 
