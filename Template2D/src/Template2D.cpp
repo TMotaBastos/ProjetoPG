@@ -36,6 +36,7 @@ int estado;
 GLfloat mouse_x, mouse_y;
 //Quadrado quad[1000];
 Quadrado quad;
+QuadradoAvancado quad2;
 //std::vector<Ponto> ponto;
 Ponto ponto[2];
 int qtdPontos;
@@ -150,8 +151,12 @@ void myinit() {
 	emMovimento = false;
 	qtdPassos = 0;
 	qtdPontos = 0;
-	quad = Quadrado(/*(((GLfloat)(rand()%50))/100.0)+0.1*/(GLfloat)0.5, /*0*/-0.25, /*0*/-0.25,
-		((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0);
+	//quad2 = QuadradoAvancado((GLfloat)-0.25, (GLfloat)-0.25, (GLfloat)0.25, (GLfloat)-0.25,
+	//	(GLfloat)0.25, (GLfloat)0.25, (GLfloat)-0.25, (GLfloat)0.25);
+	quad2 = QuadradoAvancado((GLfloat)-0.25, (GLfloat)-0.25, (GLfloat)0.25, (GLfloat)-0.25,
+		(GLfloat)0.50, (GLfloat)0.25, (GLfloat)0.00, (GLfloat)0.25);
+	//quad = Quadrado(/*(((GLfloat)(rand()%50))/100.0)+0.1*/(GLfloat)0.5, /*0*/-0.25, /*0*/-0.25,
+	//	((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0);
 	//ponto.clear();	
 	estado = MODIFIED;
 	loop(0);
@@ -210,16 +215,20 @@ void mydisplay() {
 	*/
 	//top left
 	glTexCoord2f(0, 1);
-	glVertex2f(quad.x, quad.y + quad.lado);
+	glVertex2f(quad2.x4, quad2.y4);
+	//glVertex2f(quad.x, quad.y + quad.lado);
 	//bottom left
 	glTexCoord2f(0, 0);
-	glVertex2f(quad.x, quad.y);
+	glVertex2f(quad2.x1, quad2.y1);
+	//glVertex2f(quad.x, quad.y);
 	//bottom right
 	glTexCoord2f(1, 0);
-	glVertex2f(quad.x + quad.lado, quad.y);
+	glVertex2f(quad2.x2, quad2.y2);
+	//glVertex2f(quad.x + quad.lado, quad.y);
 	//top right
 	glTexCoord2f(1, 1);
-	glVertex2f(quad.x + quad.lado, quad.y + quad.lado);
+	glVertex2f(quad2.x3, quad2.y3);
+	//glVertex2f(quad.x + quad.lado, quad.y + quad.lado);
 	glEnd();
 	//outro teste	
 	glBegin(GL_LINE_STRIP);
@@ -271,8 +280,8 @@ void handleMouse(int btn, int state, int x, int y) {
 			}
 			}*/
 			emMovimento = true;
-			movimentoX = ((mouse_x - quad.x)+0.0) / ESPACO;
-			movimentoY = ((mouse_y - quad.y)+0.0) / ESPACO;
+			movimentoX = ((mouse_x - quad2.x1)+0.0) / ESPACO;
+			movimentoY = ((mouse_y - quad2.y1)+0.0) / ESPACO;
 			//quad.x = mouse_x;
 			//quad.y = mouse_y;
 			estado = MODIFIED;
@@ -316,8 +325,14 @@ void hadleSpecialKeyboard(int key, int x, int y) {
 void loop(int id) {
 	if (emMovimento) {
 		qtdPassos++;
-		quad.x += movimentoX;
-		quad.y += movimentoY;
+		quad2.x1 += movimentoX;
+		quad2.y1 += movimentoY;
+		quad2.x2 += movimentoX;
+		quad2.y2 += movimentoY;
+		quad2.x3 += movimentoX;
+		quad2.y3 += movimentoY;
+		quad2.x4 += movimentoX;
+		quad2.y4 += movimentoY;
 		estado = MODIFIED;
 		if (qtdPassos == ESPACO) {
 			qtdPassos = 0;

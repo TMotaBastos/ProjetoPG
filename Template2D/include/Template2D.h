@@ -26,6 +26,11 @@ struct Quadrado {
 	Quadrado(GLfloat lado = 0.0, GLfloat x = 0.0, GLfloat y = 0.0, GLfloat r = 0.0, GLfloat g = 0.0, GLfloat b = 0.0) :lado(lado), x(x), y(y), r(r), g(g), b(b) {}
 };
 
+struct QuadradoAvancado {
+	GLfloat x1, y1, x2, y2, x3, y3, x4, y4;
+	QuadradoAvancado(GLfloat x1 = 0.0, GLfloat y1 = 0.0, GLfloat x2 = 0.0, GLfloat y2 = 0.0, GLfloat x3 = 0.0, GLfloat y3 = 0.0, GLfloat x4 = 0.0, GLfloat y4 = 0.0) : x1(x1), y1(y1), x2(x2), y2(y2), x3(x3), y3(y3), x4(x4), y4(y4){}
+};
+
 struct Ponto {
 	GLfloat x, y;
 	Ponto(GLfloat x = 0.0, GLfloat y = 0.0) : x(x), y(y) {}
