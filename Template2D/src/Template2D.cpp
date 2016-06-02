@@ -47,6 +47,113 @@ bool emMovimento;
 int qtdPassos;
 GLfloat window_width = /*350.0*/600.0;
 GLfloat window_height = /*350.0*/600.0;
+int t_matrix[3][3];
+int matrix[3][3]; //só para não ficar dando erro, tirar depois
+
+
+//lembrar de colocar a matrix[][] (matriz do ponto) como paramêtro na função
+//trocar o retorno também, os corretos estão comentados, assim como os próprios retornos
+void clear() {
+	t_matrix[0][0] = 0;//a
+	t_matrix[0][1] = 0;//b
+	t_matrix[0][2] = 0;//tx
+	t_matrix[1][0] = 0;//c
+	t_matrix[1][1] = 0;//d
+	t_matrix[1][2] = 0;//ty
+	t_matrix[2][0] = 0;
+	t_matrix[2][1] = 0;
+	t_matrix[2][2] = 1;
+}
+
+void /*int***/ scale(int sx, int sy) {
+	t_matrix[0][0] = sx;
+	t_matrix[1][1] = sy;
+
+	int matrix_c[3][1];
+	for (int i = 0; i < 3; i++) {
+		int sum = 0;
+		for (int j = 0; j < 3; j++) {
+			sum += (t_matrix[i][j] * matrix[j][0]);
+			matrix_c[i][0] = sum;
+		}
+	}
+	for (int i = 0; i < 3; i++) matrix[i][0] = matrix_c[i][0];
+	//return matrix_c;
+}
+
+void /*int***/ refletion() {
+
+
+	int matrix_c[3][3];
+	for (int i = 0; i < 3; i++) {
+		int sum = 0;
+		for (int k = 0; k < 3; k++) {
+			sum += (matrix[i][k] * t_matrix[k][0]);
+			matrix_c[i][0] = sum;
+		}
+	}
+	clear();
+	//return matrix_c;
+}
+
+void /*int***/ shear(int kx, int ky) {
+	t_matrix[0][0] = 1;
+	t_matrix[0][1] = kx;
+	t_matrix[1][0] = ky;
+	t_matrix[1][1] = 1;
+
+	int matrix_c[3][3];
+	for (int i = 0; i < 3; i++) {
+		int sum = 0;
+		for (int k = 0; k < 3; k++) {
+			sum += (matrix[i][k] * t_matrix[k][0]);
+			matrix_c[i][1] = sum;
+		}
+	}
+	clear();
+	//return matrix_c;
+}
+
+void /*int***/ rotation() {
+
+	// rotação antihorária
+	//(cos -sen 0)
+	//(sen  cos 0)
+	//( 0    0  1)
+
+	// rotação horária
+	//( cos sen 0)
+	//(-sen cos 0)
+	//(  0   0  1)
+	int matrix_c[3][3];
+	for (int i = 0; i < 3; i++) {
+		int sum = 0;
+		for (int k = 0; k < 3; k++) {
+			sum += (matrix[i][k] * t_matrix[k][0]);
+			matrix_c[i][0] = sum;
+		}
+	}
+	clear();
+	//return matrix_c;
+}
+
+void /*int***/ translation(int x, int y) {
+	t_matrix[0][0] = 1;
+	t_matrix[1][1] = 1;
+	t_matrix[0][2] -= x;
+	t_matrix[1][2] -= y;
+
+	int matrix_c[3][3];
+	for (int i = 0; i < 3; i++) {
+		int sum = 0;
+		for (int k = 0; k < 3; k++) {
+			sum += (matrix[i][k] * t_matrix[k][0]);
+			matrix_c[i][0] = sum;
+		}
+	}
+	clear();
+	//return matrix_c;
+}
 
 GLuint loadTexture(const char* imagepath) {
 	unsigned char header[54];
@@ -187,9 +294,9 @@ void mydisplay() {
 	//glColor3f(quad.r, quad.g, quad.b);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	//colocando a textura
-	GLuint texture1 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb.bmp");
-	GLuint texture2 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb2.bmp");
-	GLuint texture3 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb3.bmp");
+	GLuint texture1 = loadTexture("C:/Users/JoãoAdherval/Desktop/ProjetoPG/Template2D/images/phmb.bmp");
+	GLuint texture2 = loadTexture("C:/Users/JoãoAdherval/Desktop/ProjetoPG/Template2D/images/phmb2.bmp");
+	GLuint texture3 = loadTexture("C:/Users/JoãoAdherval/Desktop/ProjetoPG/Template2D/images/phmb3.bmp");
 	if(cont < 10) glBindTexture(GL_TEXTURE_2D, texture1);
 	else if(cont >= 10 && cont < 20) glBindTexture(GL_TEXTURE_2D, texture2);
 	else if(cont >= 20 && cont < 30) glBindTexture(GL_TEXTURE_2D, texture3);
