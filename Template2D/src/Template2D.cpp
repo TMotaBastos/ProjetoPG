@@ -29,6 +29,7 @@ http://www.opengl.org/sdk/docs/man/
 */
 
 #include "Template2D.h"
+#include <utility>
 #define ESPACO 10
 
 //int qtdQuadrados;
@@ -48,7 +49,10 @@ int qtdPassos;
 GLfloat window_width = /*350.0*/600.0;
 GLfloat window_height = /*350.0*/600.0;
 int t_matrix[3][3];
-int matrix[3][3]; //só para não ficar dando erro, tirar depois
+int matrix[3][1]; //só para não ficar dando erro, tirar depois
+int matrix_c[3][1];
+char comando;
+//pair<GLfloat, GLfloat> ponto_t;
 
 
 //lembrar de colocar a matrix[][] (matriz do ponto) como paramêtro na função
@@ -65,23 +69,49 @@ void clear() {
 	t_matrix[2][2] = 1;
 }
 
-void /*int***/ scale(int sx, int sy) {
+pair<GLfloat, GLfloat>/*void*//*int***/ scale(int sx, int sy/*, int matrix[3][1]*//*, pair<GLfloat, GLfloat> ponto_t*/, GLfloat xrec, GLfloat yrec) {
 	t_matrix[0][0] = sx;
 	t_matrix[1][1] = sy;
 
-	int matrix_c[3][1];
-	for (int i = 0; i < 3; i++) {
-		int sum = 0;
-		for (int j = 0; j < 3; j++) {
-			sum += (t_matrix[i][j] * matrix[j][0]);
-			matrix_c[i][0] = sum;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			printf("%d ", t_matrix[i][j]);
 		}
+		printf("\n");
 	}
-	for (int i = 0; i < 3; i++) matrix[i][0] = matrix_c[i][0];
+
+	printf("x = %lf\n", xrec);
+	printf("y = %lf\n", yrec);
+	printf("(%lf,%lf)\n", xrec, yrec);
+
+	//int matrix_c[3][1];
+	GLfloat x, y;
+	for (int i = 0; i < 3; i++) {
+		GLfloat sum = 0;
+		for (int j = 0; j < 3; j++) {
+			if (j == 0) {
+				sum += (t_matrix[i][j] * /*matrix[j][0]*/xrec);
+			}else if(j == 1){
+				sum += (t_matrix[i][j] * /*matrix[j][0]*/yrec);
+			}
+			if (j == 0) {
+				printf("i(%d) , j(%d)  %lf\n", i, j, xrec);
+			}else if(j == 1){
+				printf("i(%d) , j(%d)  %lf\n", i, j, yrec);
+			}
+			//matrix_c[i][0] = sum;
+		}
+		if (i == 0) x = sum;
+		else if (i == 1) y = sum;
+	}
+	//for (int i = 0; i < 3; i++) matrix[i][0] = matrix_c[i][0];
 	//return matrix_c;
+	return pair<GLfloat, GLfloat>(x, y);
 }
 
-void /*int***/ refletion() {
+void/*int***/ refletion() {
 
 
 	int matrix_c[3][3];
@@ -96,7 +126,7 @@ void /*int***/ refletion() {
 	//return matrix_c;
 }
 
-void /*int***/ shear(int kx, int ky) {
+void/*int***/ shear(int kx, int ky) {
 	t_matrix[0][0] = 1;
 	t_matrix[0][1] = kx;
 	t_matrix[1][0] = ky;
@@ -114,7 +144,7 @@ void /*int***/ shear(int kx, int ky) {
 	//return matrix_c;
 }
 
-void /*int***/ rotation() {
+void/*int***/ rotation() {
 
 	// rotação antihorária
 	//(cos -sen 0)
@@ -137,7 +167,7 @@ void /*int***/ rotation() {
 	//return matrix_c;
 }
 
-void /*int***/ translation(int x, int y) {
+void/*int***/ translation(int x, int y) {
 	t_matrix[0][0] = 1;
 	t_matrix[1][1] = 1;
 	t_matrix[0][2] -= x;
@@ -162,7 +192,13 @@ GLuint loadTexture(const char* imagepath) {
 	unsigned int imageSize;
 	unsigned char* data;
 
-	FILE* file = fopen(imagepath, "rb");
+	FILE *file = fopen(imagepath, "rb");
+	/*FILE *file;
+	errno_t err;
+	if ((err = fopen_s(&file, imagepath, "rb")) != 0) {
+		printf("Nao pode abrir o arquivo");
+	}*/
+
 	if (!file) {
 		printf("Nao existe essa imagem!\n");
 		return 0;
@@ -256,12 +292,13 @@ void myinit() {
 	movimentoX = 0.0;
 	movimentoY = 0.0;
 	emMovimento = false;
+	comando = 'n';
 	qtdPassos = 0;
 	qtdPontos = 0;
-	//quad2 = QuadradoAvancado((GLfloat)-0.25, (GLfloat)-0.25, (GLfloat)0.25, (GLfloat)-0.25,
-	//	(GLfloat)0.25, (GLfloat)0.25, (GLfloat)-0.25, (GLfloat)0.25);
 	quad2 = QuadradoAvancado((GLfloat)-0.25, (GLfloat)-0.25, (GLfloat)0.25, (GLfloat)-0.25,
-		(GLfloat)0.50, (GLfloat)0.25, (GLfloat)0.00, (GLfloat)0.25);
+		(GLfloat)0.25, (GLfloat)0.25, (GLfloat)-0.25, (GLfloat)0.25);
+	//quad2 = QuadradoAvancado((GLfloat)-0.25, (GLfloat)-0.25, (GLfloat)0.25, (GLfloat)-0.25,
+	//	(GLfloat)0.50, (GLfloat)0.25, (GLfloat)0.00, (GLfloat)0.25);
 	//quad = Quadrado(/*(((GLfloat)(rand()%50))/100.0)+0.1*/(GLfloat)0.5, /*0*/-0.25, /*0*/-0.25,
 	//	((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0, ((GLfloat)(rand() % 256)) / 255.0);
 	//ponto.clear();	
@@ -294,12 +331,16 @@ void mydisplay() {
 	//glColor3f(quad.r, quad.g, quad.b);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	//colocando a textura
-	GLuint texture1 = loadTexture("C:/Users/JoãoAdherval/Desktop/ProjetoPG/Template2D/images/phmb.bmp");
-	GLuint texture2 = loadTexture("C:/Users/JoãoAdherval/Desktop/ProjetoPG/Template2D/images/phmb2.bmp");
-	GLuint texture3 = loadTexture("C:/Users/JoãoAdherval/Desktop/ProjetoPG/Template2D/images/phmb3.bmp");
-	if(cont < 10) glBindTexture(GL_TEXTURE_2D, texture1);
-	else if(cont >= 10 && cont < 20) glBindTexture(GL_TEXTURE_2D, texture2);
-	else if(cont >= 20 && cont < 30) glBindTexture(GL_TEXTURE_2D, texture3);
+	GLuint texture1 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/dandy.bmp");
+	//GLuint texture2 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb2.bmp");
+	//GLuint texture3 = loadTexture("C:/Users/TMB/Documents/ProjetoPG/ProjetoPG/Template2D/images/phmb3.bmp");
+	
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	//imagem animada
+	//if(cont < 10) glBindTexture(GL_TEXTURE_2D, texture1);
+	//else if(cont >= 10 && cont < 20) glBindTexture(GL_TEXTURE_2D, texture2);
+	//else if(cont >= 20 && cont < 30) glBindTexture(GL_TEXTURE_2D, texture3);
+	
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	/*glVertex2f(quad.x, quad.y);
@@ -321,7 +362,7 @@ void mydisplay() {
 	glVertex2f(quad.x, quad.y + quad.lado);
 	*/
 	//top left
-	glTexCoord2f(0, 1);
+	glTexCoord2f(0, 1);  //so trocar o ultimo valor de todos pra ficar em pé/de cabeça pra baixo
 	glVertex2f(quad2.x4, quad2.y4);
 	//glVertex2f(quad.x, quad.y + quad.lado);
 	//bottom left
@@ -336,6 +377,7 @@ void mydisplay() {
 	glTexCoord2f(1, 1);
 	glVertex2f(quad2.x3, quad2.y3);
 	//glVertex2f(quad.x + quad.lado, quad.y + quad.lado);
+
 	glEnd();
 	//outro teste	
 	glBegin(GL_LINE_STRIP);
@@ -386,12 +428,47 @@ void handleMouse(int btn, int state, int x, int y) {
 			break;
 			}
 			}*/
-			emMovimento = true;
-			movimentoX = ((mouse_x - quad2.x1)+0.0) / ESPACO;
-			movimentoY = ((mouse_y - quad2.y1)+0.0) / ESPACO;
-			//quad.x = mouse_x;
-			//quad.y = mouse_y;
-			estado = MODIFIED;
+			int cont1 = 0, cont2 = 0, cont3 = 0, cont4 = 0;
+			if (mouse_x > quad2.x1) cont1++;
+			if (mouse_x > quad2.x2) cont1++;
+			if (mouse_x > quad2.x3) cont1++;
+			if (mouse_x > quad2.x4) cont1++;
+			
+			if (mouse_x < quad2.x1) cont2++;
+			if (mouse_x < quad2.x2) cont2++;
+			if (mouse_x < quad2.x3) cont2++;
+			if (mouse_x < quad2.x4) cont2++;
+
+			if (mouse_y > quad2.y1) cont3++;
+			if (mouse_y > quad2.y2) cont3++;
+			if (mouse_y > quad2.y3) cont3++;
+			if (mouse_y > quad2.y4) cont3++;
+
+			if (mouse_y < quad2.y1) cont4++;
+			if (mouse_y < quad2.y2) cont4++;
+			if (mouse_y < quad2.y3) cont4++;
+			if (mouse_y < quad2.y4) cont4++;
+
+			if (cont1 == 4 || cont2 == 4 || cont3 == 4 || cont4 == 4) {
+				emMovimento = true;
+				movimentoX = ((mouse_x - quad2.x1) + 0.0) / ESPACO;
+				movimentoY = ((mouse_y - quad2.y1) + 0.0) / ESPACO;
+				//quad.x = mouse_x;
+				//quad.y = mouse_y;
+				estado = MODIFIED;
+			}else{
+				//nanogui::Widget *panel = new nanogui::Widget(window);
+				//nanogui::init();
+
+				//talvez codigo aqui
+
+				//nanogui::FormHelper *gui = new nanogui::FormHelper(screen);
+				//ref<nanogui::Window> teste = gui->addWindow(vector<int>(10, 10), "AE");
+				//ref<nanogui::Window> window = gui->addWindow();
+				//vector<int> bla;
+				//bla.push_back(10);
+				//bla.push_back(10);
+			}
 		}
 	}
 	else if (btn == GLUT_LEFT_BUTTON && state == GLUT_UP) {
@@ -415,11 +492,47 @@ void handleMouse(int btn, int state, int x, int y) {
 	  //	 estado = MODIFIED;	
 	  // }	
 	  //}
+	
 }
 
 void hadleKeyboard(unsigned char key, int x, int y) {
 	if (key == ESC) {
 		exit(0);
+	}
+	else if (key == 'r') { //rotacao
+		comando = 'r';
+	}
+	else if (key == 'e') { //mudanca de escala
+		comando = 'e';
+	}
+	else if (key == 'c') { //cisalhamento
+		comando = 'c';
+	}
+	else if (key == 'o') { //pode realizar o comando
+		//doMagic(); //funcao que vai realizar o comando
+	}
+	else if (key == 't') {
+		//ponto_t.first = quad2.x1;
+		//ponto_t.second = quad2.y1;
+		printf("loucura (%lf,%lf)\n", quad2.x1, quad2.y1);
+		//printf("loucura2 (%lf,%lf)\n", ponto_t.first, ponto_t.second);
+		pair<GLfloat, GLfloat> ret = scale(2, 2/*, pair<GLfloat, GLfloat>(quad2.x1, quad2.y1)*/, quad2.x1, quad2.y1);
+		quad2.x1 = ret.first;
+		quad2.y1 = ret.second;
+		printf("Ponto 1 - (%lf,%lf)\n", quad2.x1, quad2.y1);
+		ret = scale(2, 2/*, pair<GLfloat, GLfloat>(quad2.x2, quad2.y2)*/, quad2.x2, quad2.y2);
+		quad2.x2 = ret.first;
+		quad2.y2 = ret.second;
+		printf("Ponto 2 - (%lf,%lf)\n", quad2.x2, quad2.y2);
+		ret = scale(2, 2/*, pair<GLfloat, GLfloat>(quad2.x3, quad2.y3)*/, quad2.x3, quad2.y3);
+		quad2.x3 = ret.first;
+		quad2.y3 = ret.second;
+		printf("Ponto 3 - (%lf,%lf)\n", quad2.x3, quad2.y3);
+		ret = scale(2, 2/*, pair<GLfloat, GLfloat>(quad2.x4, quad2.y4)*/, quad2.x4, quad2.y4);
+		quad2.x4 = ret.first;
+		quad2.y4 = ret.second;
+		printf("Ponto 4 - (%lf,%lf)\n", quad2.x4, quad2.y4);
+		estado = MODIFIED;
 	}
 }
 
@@ -455,7 +568,7 @@ void loop(int id) {
 	else if (estado != IDLE) {
 		mydisplay();
 	}
-	cont = (cont + 1) % 30;
+	//cont = (cont + 1) % 30;
 	if (cont == 10 || cont == 20 || cont == 0) mydisplay();//estado = MODIFIED;
 	glutTimerFunc(1000 / FPS, loop, id);
 }
@@ -465,6 +578,7 @@ int main(int argc, char **argv) {
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(window_width, window_height);
 	glutCreateWindow("Projeto1");
+
 	glutDisplayFunc(mydisplay);
 	glutReshapeFunc(myreshape);
 	glutMouseFunc(handleMouse);
